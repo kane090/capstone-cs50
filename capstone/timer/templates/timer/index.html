@@ -4,21 +4,65 @@
 <html lang="en">
     <head>
         <title>Speedsolving Timer</title>
-        <link rel="stylesheet" href="{% static 'timer/styles.css' %}">
+        <link rel="stylesheet" href="{% static 'timer/index.css' %}">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <script src="{% static 'timer/index.js' %}"></script>
     </head>
     <body>
+        <a id="pbs" href="{% url 'pbs' %}">PBs</a>
+        <div id="scramble">
+        </div>
+        <div id="solve_number">
+            Solve #{{ solve_number }}
+        </div>
         <div id="clock">
             <span id="minutes"></span><span id="colon"></span><span id="seconds">0</span>.<span id="centiseconds">00</span>
-            <button type="button" class="btn btn-danger btn-sm" onclick="clear_times()">Clear Times</button>
+        </div>
+        <div id="ao5">
+            <table>
+                <tbody>
+                    <tr id="ao5_solves">
+                        ao5:
+                        {% for solve in ao5 %}
+                            <td>{{ solve }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+            <span id="average_5">
+                {% if average_5 %}
+                     = {{ average_5 }}
+                {% endif %}
+            </span>
+        </div>
+        <div id="ao12">
+            <table>
+                <tbody>
+                    <tr id="ao12_solves">
+                        ao12:
+                        {% for solve in ao12 %}
+                            <td>{{ solve }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+            <span id="average_12">
+                {% if average_12 %}
+                     = {{ average_12 }}
+                {% endif %}
+            </span>
         </div>
         <div id="times">
-            {% for time in times %}
-                <div>
-                    {{ time }}
-                </div>
-            {% endfor %}
+            <table>
+                <tbody>
+                    <tr id="solves">
+                        {% for time in times %}
+                            <td>{{ time }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
         </div>
+        <button type="button" id="clear" class="btn btn-danger btn-sm" onclick="clear_times()">Clear Times</button>
     </body>
 </html>

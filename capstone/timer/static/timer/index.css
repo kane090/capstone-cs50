@@ -1,0 +1,85 @@
+#clock {
+    font-size: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#times {
+    font-size: 30px;
+    overflow-x: auto;
+    white-space: nowrap;
+    position: absolute;
+    bottom: 15px;
+    width: 50%;
+    transform: translateX(50%);
+}
+
+td {
+    padding-left: 15px;
+}
+
+#clear {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+
+#pbs {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+#scramble {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 20px;
+}
+
+#ao5 {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    overflow-x: visible;
+    white-space: nowrap;
+    font-size: 20px;
+    position: absolute;
+    bottom: 175px;
+    width: 50%;
+    transform: translateX(50%);
+}
+
+#ao12 {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    overflow-x: visible;
+    white-space: nowrap;
+    font-size: 20px;
+    position: absolute;
+    bottom: 125px;
+    width: 50%;
+    transform: translateX(50%);
+}
+
+#average_12, #average_5 {
+    margin-left: 7px;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+#solve_number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    transform: translateX(50%);
+    position: absolute;
+    top: 150px;
+    font-size: 25px;
+}
