@@ -12,6 +12,14 @@
         <a id="pbs" href="{% url 'pbs' %}">PBs</a>
         <div id="scramble">
         </div>
+        <div>
+            <table>
+                <tbody>
+                    <tr id="success">
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div id="solve_number">
             Solve #{{ solve_number }}
         </div>
@@ -64,5 +72,6 @@
             </table>
         </div>
         <button type="button" id="clear" class="btn btn-danger btn-sm" onclick="clear_times()">Clear Times</button>
+        <button type="button" id="add" class="btn btn-primary btn-sm" onclick="add_time()">Add Time (in seconds)</button>
     </body>
 </html>

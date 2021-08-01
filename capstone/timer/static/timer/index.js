@@ -28,24 +28,13 @@ document.addEventListener('keyup', event => {
             minutes = 0;
             seconds = 0;
             centiseconds = 0;
+            remove_alert('single'); remove_alert('ao5'); remove_alert('ao12');
             timer = setInterval(updateTimer, 10);
         }
         else {
             clearInterval(timer);
             timer = null;
-            fetch('/solve', {
-                method: 'PUT',
-                body: JSON.stringify({
-                    time: solve,
-                    scramble: document.querySelector("#scramble").innerHTML
-                })
-            });
-            let new_time = document.createElement('td');
-            new_time.innerHTML = proper_time(solve);
-            document.querySelector('#solves').prepend(new_time);
-            generate_scramble(); ao(5); ao(12);
-            let solve_number = document.querySelector('#solves').childElementCount + 1;
-            document.querySelector('#solve_number').innerHTML = `Solve #${solve_number}`;
+            add_solve(true);
         }
     }
 });
@@ -85,6 +74,7 @@ function clear_times() {
     document.querySelector('#average_5').innerHTML = '';
     document.querySelector('#average_12').innerHTML = '';
     document.querySelector('#solve_number').innerHTML = 'Solve #1';
+    remove_alert('single'); remove_alert('ao5'); remove_alert('ao12');
 }
 
 function proper_time(time) {
@@ -146,28 +136,92 @@ function generate_scramble() {
     document.querySelector("#scramble").innerHTML = output;
 }
 
-function ao(number) {
-    document.querySelector(`#ao${number}_solves`).innerHTML = '';
-    fetch(`/averages/${number}`)
-    .then(response => response.json())
-    .then(solves => {
-        solves.forEach(element => {
-            const time = element["time"];
-            let row = document.querySelector(`#ao${number}_solves`);
-            let entry = document.createElement('td');
-            entry.innerHTML = proper_time(time);
-            row.append(entry);
-        });
-    });
-
+function update_averages(number, node) {
+    average = document.querySelector(`#ao${number}_solves`);
+    average.prepend(node);
+    if (average.childElementCount > number) {
+        average.removeChild(average.lastChild);
+    }
     fetch(`/average_times/${number}`, {
         method: 'POST'
     })
     .then(response => response.json())
     .then(time => {
         if (time) {
-            const average = proper_time(time['average'].toFixed(2));
-            document.querySelector(`#average_${number}`).innerHTML = `= ${average}`
+            const actual_average = proper_time(time['average'].toFixed(2));
+            document.querySelector(`#average_${number}`).innerHTML = `= ${actual_average}`;
+            if (time['message']) {
+                make_message(time);
+            }
         }
     });
+}
+
+function make_message(dictionary) {
+    let table_item = document.createElement('td');
+    let alert = document.createElement('div');
+    let id = dictionary['id'];
+    table_item.id = `success_${id}`;
+    alert.className = "alert alert-success";
+    alert.setAttribute('role', "alert");
+    alert.innerHTML = dictionary['message'];
+    table_item.innerHTML = alert.outerHTML;
+    let relative = document.querySelector('#success');
+    relative.prepend(table_item);
+}
+
+function remove_alert(id) {
+    let alert = document.querySelector(`#success_${id}`);
+    if (alert) {
+        alert.parentNode.removeChild(alert);
+    }
+}
+
+function add_time() {
+    let add = document.createElement('textarea');
+    add.id = 'add_time';
+    add.rows = 1;
+    add.cols = 5;
+    let add_button = document.querySelector('#add');
+    add_button.parentNode.insertBefore(add, add_button.nextSibling);
+    add_button.onclick = function() {
+        add_solve(false);
+    }
+}
+
+function add_solve(condition) {
+    if (condition === false) {
+        let textarea = document.querySelector('#add_time');
+        if (!textarea.value) {
+            return false;
+        }
+        solve_to_insert = Math.floor((parseFloat(textarea.value)) * 100);
+        remove_alert('single'); remove_alert('ao5'); remove_alert('ao12');
+    }
+    else {
+        solve_to_insert = solve;
+    }
+    fetch('/solve', {
+        method: 'PUT',
+        body: JSON.stringify({
+            time: solve_to_insert,
+            scramble: document.querySelector("#scramble").innerHTML
+        })
+    })
+    .then(response => response.json())
+    .then(message => {
+        if (message["message"]) {
+            make_message(message);
+        }
+    });
+    let new_time = document.createElement('td');
+    new_time.innerHTML = proper_time(solve_to_insert);
+    document.querySelector('#solves').prepend(new_time);
+    generate_scramble();
+    let clone = new_time.cloneNode(true);
+    update_averages(5, clone);
+    clone = new_time.cloneNode(true);
+    update_averages(12, clone);
+    let solve_number = document.querySelector('#solves').childElementCount + 1;
+    document.querySelector('#solve_number').innerHTML = `Solve #${solve_number}`;
 }

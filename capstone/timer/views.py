@@ -38,21 +38,20 @@ def solve(request):
         solve_to_add.save()
         database = Database.objects.first()
         if not database:
-            database = Database(single=solve_to_add)
-        if data["time"] < database.single.time:
-            database.single = solve_to_add
+            database = Database(single=data["time"], single_proper=proper_time(data["time"]))
+        if data["time"] < database.single:
+            database.single = data["time"]
+            database.single_proper = proper_time(data["time"])
+            database.save()
+            return JsonResponse({'message': "Congratulations! You just got a new PB single :)", 'id': "single"})
         database.save()
-        return HttpResponse(status=204)
+        return JsonResponse({'message': None})
 
 @csrf_exempt
 def clear(request):
     Solve.objects.all().delete()
+    Database.objects.all().delete()
     return HttpResponse(status=204)
-
-@csrf_exempt
-def averages(request, num):
-    solves = Solve.objects.all().order_by('id').reverse()[:num]
-    return JsonResponse([solve.serialize() for solve in solves], safe=False)
 
 @csrf_exempt
 def average_times(request, num):
@@ -70,7 +69,11 @@ def average_times(request, num):
                 database.ao5 = average
                 database.ao5_proper = proper_time(average)
                 database.save()
+                message = "Congratulations! You just got a new PB ao5 :)"
+                print('hello')
+                return JsonResponse({'average': average, 'message': message, 'id': "ao5"})
         else:
+            print('why')
             database.ao5 = average
             database.ao5_proper = proper_time(average)
             database.save()
@@ -80,13 +83,15 @@ def average_times(request, num):
                 database.ao12 = average
                 database.ao12_proper = proper_time(average)
                 database.save()
+                message = "Congratulations! You just got a new PB ao12 :)"
+                return JsonResponse({'average': average, 'message': message, 'id': "ao12"})
         else:
             database.ao12 = average
             database.ao12_proper = proper_time(average)
             database.save()
     if request.method == "POST":
         return JsonResponse({'average': average})
-    else:
+    if request.method == "GET":
         return average
 
 def pbs(request):
@@ -94,6 +99,24 @@ def pbs(request):
     return render(request, "timer/pbs.html", {
         "database": database
     })
+
+@csrf_exempt
+def save_pb(request, type):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        time = floor(float(data["time"]) * 100)
+        database = Database.objects.first()
+        if type == "single":
+            database.single = round(time)
+            database.single_proper = proper_time(time)
+        elif type == "ao5":
+            database.ao5 = round(time)
+            database.ao5_proper = proper_time(time)
+        elif type == "ao12":
+            database.ao12 = round(time)
+            database.ao12_proper = proper_time(time)
+        database.save()
+        return JsonResponse({"proper_time": proper_time(time)})
 
 def proper_time(time):
     colon = ""

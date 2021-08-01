@@ -6,6 +6,7 @@
         <title>Personal Bests</title>
         <link rel="stylesheet" href="{% static 'timer/pbs.css' %}">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="{% static 'timer/pbs.js' %}"></script>
     </head>
     <body>
         <h2>Your Personal Bests:</h2>
@@ -19,15 +20,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    {% if database.single %}
-                        <td>{{ database.single }}</td>
+                <tr id="data">
+                    {% if database.single_proper %}
+                        <td id="single" onclick="change_pb('single')">{{ database.single_proper }}</td>
                     {% endif %}
                     {% if database.ao5_proper %}
-                        <td>{{ database.ao5_proper }}</td>
+                        <td id="ao5" onclick="change_pb('ao5')">{{ database.ao5_proper }}</td>
                     {% endif %}
                     {% if database.ao12_proper %}
-                        <td>{{ database.ao12_proper }}</td>
+                        <td id="ao12" onclick="change_pb('ao12')">{{ database.ao12_proper }}</td>
                     {% endif %}
                 </tr>
             </tbody>

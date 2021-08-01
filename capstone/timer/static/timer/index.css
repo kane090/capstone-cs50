@@ -26,6 +26,12 @@ td {
     right: 15px;
 }
 
+#add {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+}
+
 #pbs {
     position: absolute;
     top: 10px;
@@ -82,4 +88,19 @@ td {
     position: absolute;
     top: 150px;
     font-size: 25px;
+}
+
+#success {
+    overflow-x: auto;
+    white-space: nowrap;
+    position: absolute;
+    top: 70px;
+    width: 50%;
+    transform: translateX(50%);
+}
+
+textarea {
+    position: absolute;
+    bottom: 10px;
+    left: 200px;
 }

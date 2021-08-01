@@ -1,7 +1,6 @@
 from math import floor
 
 from django.db import models
-from django.db.models.fields.related import ForeignKey
 
 # Create your models here.
 
@@ -30,11 +29,12 @@ class Solve(models.Model):
         }
 
 class Database(models.Model):
-    single = ForeignKey(Solve, on_delete=models.CASCADE, related_name="pb_single")
+    single = models.IntegerField()
+    single_proper = models.CharField(max_length=20, null=True)
     ao5 = models.IntegerField(null=True)
-    ao12 = models.IntegerField(null=True)
     ao5_proper = models.CharField(max_length=20, null=True)
+    ao12 = models.IntegerField(null=True)
     ao12_proper = models.CharField(max_length=20, null=True)
 
     def __str__(self):
-        return f"{self.single}|{self.ao5_proper}|{self.ao12_proper}"
+        return f"{self.single_proper}|{self.ao5_proper}|{self.ao12_proper}"
