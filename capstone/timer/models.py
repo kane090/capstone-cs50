@@ -22,11 +22,6 @@ class Solve(models.Model):
                 seconds = "0" + seconds
             return minutes + colon + seconds + "." + centiseconds
         return seconds + "." + centiseconds
-    
-    def serialize(self):
-        return {
-            "time": self.time
-        }
 
 class Database(models.Model):
     single = models.IntegerField()

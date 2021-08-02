@@ -45,7 +45,8 @@ def solve(request):
             database.save()
             return JsonResponse({'message': "Congratulations! You just got a new PB single :)", 'id': "single"})
         database.save()
-        return JsonResponse({'message': None})
+        solve_to_id = Solve.objects.get(time=data["time"], scramble=data["scramble"])
+        return JsonResponse({'message': None, 'id': solve_to_id.pk})
 
 @csrf_exempt
 def clear(request):
