@@ -95,6 +95,8 @@ function proper_time(time) {
     return seconds + "." + centiseconds
 }
 
+// Scramble generator based on
+// https://codepen.io/yzwsvzzolk/pen/wfukC
 function generate_scramble() {
     let face_num;
     let previous_face_num;
@@ -104,7 +106,7 @@ function generate_scramble() {
     for (let i = 0; i < 20; i++) {
         do {
             face_num = Math.floor(Math.random() * 6) + 1;
-        } while (face_num === previous_face_num);
+        } while (face_num === previous_face_num); // Cannot have two consecutive moves with the same face
         previous_face_num = face_num;
         if (face_num === 1) {
             face_to_turn = "R";
@@ -140,7 +142,7 @@ function update_averages(number, node) {
     average = document.querySelector(`#ao${number}_solves`);
     average.prepend(node);
     if (average.childElementCount > number) {
-        average.removeChild(average.lastChild);
+        average.removeChild(average.lastElementChild);
     }
     fetch(`/average_times/${number}`, {
         method: 'POST'
@@ -149,7 +151,25 @@ function update_averages(number, node) {
     .then(time => {
         if (time) {
             const actual_average = proper_time(time['average'].toFixed(2));
-            document.querySelector(`#average_${number}`).innerHTML = `= ${actual_average}`;
+            let average_div = document.querySelector(`#average_${number}`);
+            let equal_sign = document.querySelector(`#equal_sign_${number}`);
+            let average_span = document.querySelector(`#average_${number}_span`);
+            if (!equal_sign) {
+                equal_sign = document.createElement('span');
+                equal_sign.id = `equal_sign_${number}`;
+                equal_sign.style.paddingRight = '7px';
+                equal_sign.innerHTML = " = ";
+                average_div.appendChild(equal_sign);
+            }
+            if (!average_span) {
+                average_span = document.createElement('span');
+                average_span.id = `average_${number}_span`;
+                average_span.innerHTML = actual_average;
+                average_div.appendChild(average_span);
+            }
+            else {
+                average_span.innerHTML = actual_average;
+            }
             if (time['message']) {
                 make_message(time);
             }
@@ -183,15 +203,19 @@ function add_time() {
     add.rows = 1;
     add.cols = 5;
     let add_button = document.querySelector('#add');
-    add_button.parentNode.insertBefore(add, add_button.nextSibling);
+    add_button.parentNode.appendChild(add);
     add_button.onclick = function() {
         add_solve(false);
     }
 }
 
 function add_solve(condition) {
-    if (condition === false) {
+    if (condition === false) { // Checking whether the timer was used or a solve was added
         let textarea = document.querySelector('#add_time');
+        document.querySelector("#add_time").remove();
+        document.querySelector("#add").onclick = function() {
+            add_time();
+        }
         if (!textarea.value) {
             return false;
         }
@@ -199,7 +223,7 @@ function add_solve(condition) {
         remove_alert('single'); remove_alert('ao5'); remove_alert('ao12');
     }
     else {
-        solve_to_insert = solve;
+        solve_to_insert = solve; // Timer was used
     }
     fetch('/solve', {
         method: 'PUT',
@@ -213,15 +237,45 @@ function add_solve(condition) {
         if (message["message"]) {
             make_message(message);
         }
+
+        // Adding solve to time list
+        let new_time = document.createElement('td');
+        new_time.className = "px-3";
+        new_time.onclick = function() {
+            solve_info(message["solve_info"]);
+        }
+        new_time.innerHTML = proper_time(solve_to_insert);
+        document.querySelector('#solves').prepend(new_time);
+        
+        // Updating solve number
+        let solve_number = document.querySelector('#solves').childElementCount + 1;
+        document.querySelector('#solve_number').innerHTML = `Solve #${solve_number}`;
     });
-    let new_time = document.createElement('td');
-    new_time.innerHTML = proper_time(solve_to_insert);
-    document.querySelector('#solves').prepend(new_time);
-    generate_scramble();
-    let clone = new_time.cloneNode(true);
-    update_averages(5, clone);
-    clone = new_time.cloneNode(true);
+
+    generate_scramble(); // Generate new scramble
+
+    // Adding solve to ao5 and ao12 list
+    let new_time_span = document.createElement('span');
+    new_time_span.style.paddingLeft = '15px';
+    new_time_span.innerHTML = proper_time(solve_to_insert);
+    update_averages(5, new_time_span);
+    clone = new_time_span.cloneNode(true);
     update_averages(12, clone);
-    let solve_number = document.querySelector('#solves').childElementCount + 1;
-    document.querySelector('#solve_number').innerHTML = `Solve #${solve_number}`;
+}
+
+function solve_info(id) {
+    output = "";
+    time = "Time: ";
+    scramble = "Scramble: ";
+    date = "Date: ";
+
+    fetch(`/solve_info/${id}`)
+    .then(response => response.json())
+    .then(info => {
+        time += proper_time(info["time"]);
+        scramble += info["scramble"];
+        date += info["date"];
+        output += time + "\n" + scramble + "\n" + date;
+        alert(output);
+    });
 }

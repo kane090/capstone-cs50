@@ -1,8 +1,11 @@
 function change_pb(type) {
+
+    // Getting current PB and storing it
     let pb_to_change = document.querySelector(`#${type}`);
     let current_pb = pb_to_change.innerHTML;
     pb_to_change.remove();
 
+    // Creating textarea to get input
     let cell = document.createElement('td');
     let textarea = document.createElement('textarea');
     cell.id = `${type}`;
@@ -12,6 +15,7 @@ function change_pb(type) {
     textarea.cols = 5;
     cell.innerHTML = textarea.outerHTML;
 
+    // Creating button to save PB
     let button = document.createElement('button');
     button.id = `save_${type}`;
     button.onclick = function() {
@@ -23,6 +27,7 @@ function change_pb(type) {
 
     cell.append(button);
     
+    // Placing textarea in respective type
     if (type === "single") {
         let data = document.querySelector('#data');
         data.prepend(cell);
@@ -35,12 +40,13 @@ function change_pb(type) {
         let ao5 = document.querySelector('#ao5');
         ao5.parentNode.insertBefore(cell, ao5.nextSibling);
     }
+    alert("WARNING: Changing your PB clears all of your times set!");
 }
 
 function save_pb(type) {
     let textarea = document.querySelector(`#${type}_textarea`);
     if (!textarea.value) {
-        return false;
+        return false; // Does nothing if no value is entered, forcing a value to be entered
     }
     let pb = textarea.value;
     fetch(`/save_pb/${type}`, {
@@ -73,4 +79,5 @@ function save_pb(type) {
             ao5.parentNode.insertBefore(cell_to_insert, ao5.nextSibling);
         }
     });
+    fetch('/clear'); // Clears all times as in warning (line 43)
 }

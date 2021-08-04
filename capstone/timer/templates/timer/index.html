@@ -9,69 +9,78 @@
         <script src="{% static 'timer/index.js' %}"></script>
     </head>
     <body>
-        <a id="pbs" href="{% url 'pbs' %}">PBs</a>
-        <div id="scramble">
+        <div class="container-fluid">
+            <div class="row mt-2">
+                <div id="scramble" class="col text-center"></div>
+                <div class="col-auto">
+                    <a id="pbs" style="font-weight: bold;" href="{% url 'pbs' %}">PBs</a>
+                </div> 
+            </div>
+            <div class="row mt-3">
+                <div class="col text-center">
+                    <table class="table">
+                        <tbody>
+                            <tr id="success">
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-5 justify-content-center">
+                <div class="col text-center" id="solve_number">
+                    Solve #{{ solve_number }}
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col text-center" id="clock">
+                    <span id="minutes"></span><span id="colon"></span><span id="seconds">0</span>.<span id="centiseconds">00</span>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col text-center" id="ao5">
+                    ao5:
+                    <div id="ao5_solves" style="display: inline;">{% for solve in ao5 %}<span style="padding-left: 15px;">{{ solve }}</span>{% endfor %}</div>
+                    <div id="average_5" style="padding-left: 7px; display: inline;">
+                        {% if average_5 %}
+                            <span id="equal_sign_5" style="padding-right: 7px;"> = </span>
+                            <span id="average_5_span">{{ average_5 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col text-center" id="ao12">
+                    ao12:
+                    <div id="ao12_solves" style="display: inline;">{% for solve in ao12 %}<span style="padding-left: 15px;">{{ solve }}</span>{% endfor %}</div>
+                    <div id="average_12" style="padding-left: 7px; display: inline;">
+                        {% if average_12 %}
+                            <span id="equal_sign_12" style="padding-right: 7px;"> = </span>
+                            <span id="average_12_span">{{ average_12 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-md-6 mx-auto table-responsive" id="times">
+                    <table class="table-sm table-borderless">
+                        <tbody>
+                            <tr scope="row" id="solves">
+                                {% for time in times %}
+                                    <td class="px-3" onclick="solve_info('{{ time.id }}')">{{ time }}</td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row fixed-bottom">
+                <div class="col">
+                    <button type="button" id="add" class="btn btn-primary btn-sm" onclick="add_time()">Add Time (in seconds)</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" id="clear" class="btn btn-danger btn-sm" onclick="clear_times()">Clear Times</button>
+                </div>
+            </div>
         </div>
-        <div>
-            <table>
-                <tbody>
-                    <tr id="success">
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div id="solve_number">
-            Solve #{{ solve_number }}
-        </div>
-        <div id="clock">
-            <span id="minutes"></span><span id="colon"></span><span id="seconds">0</span>.<span id="centiseconds">00</span>
-        </div>
-        <div id="ao5">
-            <table>
-                <tbody>
-                    <tr id="ao5_solves">
-                        ao5:
-                        {% for solve in ao5 %}
-                            <td>{{ solve }}</td>
-                        {% endfor %}
-                    </tr>
-                </tbody>
-            </table>
-            <span id="average_5">
-                {% if average_5 %}
-                     = {{ average_5 }}
-                {% endif %}
-            </span>
-        </div>
-        <div id="ao12">
-            <table>
-                <tbody>
-                    <tr id="ao12_solves">
-                        ao12:
-                        {% for solve in ao12 %}
-                            <td>{{ solve }}</td>
-                        {% endfor %}
-                    </tr>
-                </tbody>
-            </table>
-            <span id="average_12">
-                {% if average_12 %}
-                     = {{ average_12 }}
-                {% endif %}
-            </span>
-        </div>
-        <div id="times">
-            <table>
-                <tbody>
-                    <tr id="solves">
-                        {% for time in times %}
-                            <td>{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <button type="button" id="clear" class="btn btn-danger btn-sm" onclick="clear_times()">Clear Times</button>
-        <button type="button" id="add" class="btn btn-primary btn-sm" onclick="add_time()">Add Time (in seconds)</button>
     </body>
 </html>

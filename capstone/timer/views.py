@@ -13,9 +13,9 @@ def index(request):
     ao5 = Solve.objects.all().order_by('id').reverse()[:5]
     ao12 = Solve.objects.all().order_by('id').reverse()[:12]
     if len(ao5) == 5:
-        average_5 = proper_time(average_times(request, 5))
+        average_5 = proper_time(average_times(request, 5)) # Calculating current ao5
         if len(ao12) == 12:
-            average_12 = proper_time(average_times(request, 12))
+            average_12 = proper_time(average_times(request, 12)) # Calculating current ao12
         else:
             average_12 = None
     else:
@@ -34,47 +34,44 @@ def index(request):
 def solve(request):
     if request.method == "PUT":
         data = json.loads(request.body)
-        solve_to_add = Solve(time=data["time"], scramble=data["scramble"])
+        solve_to_add = Solve(time=data["time"], scramble=data["scramble"]) # Adding current solve
         solve_to_add.save()
+        solve_to_info = Solve.objects.get(time=data["time"], scramble=data["scramble"])
         database = Database.objects.first()
         if not database:
-            database = Database(single=data["time"], single_proper=proper_time(data["time"]))
-        if data["time"] < database.single:
+            database = Database(single=data["time"], single_proper=proper_time(data["time"])) # Creating database if one does not exist
+        if data["time"] < database.single: # Checking if current time solved is the fastest time
             database.single = data["time"]
             database.single_proper = proper_time(data["time"])
             database.save()
-            return JsonResponse({'message': "Congratulations! You just got a new PB single :)", 'id': "single"})
+            return JsonResponse({'message': "Congratulations! You just got a new PB single :)", 'id': "single", 'solve_info': solve_to_info.id})
         database.save()
-        solve_to_id = Solve.objects.get(time=data["time"], scramble=data["scramble"])
-        return JsonResponse({'message': None, 'id': solve_to_id.pk})
+        return JsonResponse({'message': None, 'solve_info': solve_to_info.id})
 
 @csrf_exempt
 def clear(request):
     Solve.objects.all().delete()
-    Database.objects.all().delete()
     return HttpResponse(status=204)
 
 @csrf_exempt
 def average_times(request, num):
     solves = Solve.objects.all().order_by('id').reverse()[:num]
-    if len(solves) < num:
+    if len(solves) < num: # If there aren't enough solves for an ao5 or ao12
         return JsonResponse(None, safe=False)
     list_solves = [solve.time for solve in solves]
-    list_solves.remove(max(list_solves))
-    list_solves.remove(min(list_solves))
+    list_solves.remove(max(list_solves)) # Removing slowest solve
+    list_solves.remove(min(list_solves)) # Removing fastest solve
     average = floor(sum(list_solves) / len(list_solves))
     database = Database.objects.first()
     if num == 5:
-        if database.ao5 and database.ao5_proper:
-            if average < database.ao5:
+        if database.ao5 and database.ao5_proper: # Checking if ao5 value is in the database
+            if average < database.ao5: # Chceking if the latest ao5 is a PB
                 database.ao5 = average
                 database.ao5_proper = proper_time(average)
                 database.save()
                 message = "Congratulations! You just got a new PB ao5 :)"
-                print('hello')
                 return JsonResponse({'average': average, 'message': message, 'id': "ao5"})
         else:
-            print('why')
             database.ao5 = average
             database.ao5_proper = proper_time(average)
             database.save()
@@ -105,7 +102,7 @@ def pbs(request):
 def save_pb(request, type):
     if request.method == "PUT":
         data = json.loads(request.body)
-        time = floor(float(data["time"]) * 100)
+        time = floor(float(data["time"]) * 100) # Converting from seconds to centiseconds
         database = Database.objects.first()
         if type == "single":
             database.single = round(time)
@@ -118,6 +115,11 @@ def save_pb(request, type):
             database.ao12_proper = proper_time(time)
         database.save()
         return JsonResponse({"proper_time": proper_time(time)})
+
+@csrf_exempt
+def solve_info(request, id):
+    solve_to_info = Solve.objects.get(pk=int(id)) # Getting solve based on id
+    return JsonResponse({'time': solve_to_info.time, 'scramble': solve_to_info.scramble, 'date': solve_to_info.date})
 
 def proper_time(time):
     colon = ""
